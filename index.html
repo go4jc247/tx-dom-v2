@@ -1735,7 +1735,8 @@
 <!-- V12.4: Inline Web App Manifest -->
 <script>
 (function(){
-  var m = {"name": "Texas Dominoes", "short_name": "Texas Dominoes", "description": "Texas Dominoes - TN51 / T42 / Moon", "start_url": ".", "display": "standalone", "orientation": "portrait", "background_color": "#1a5c2a", "theme_color": "#1a5c2a", "icons": [{"src": "./assets/images/manifest-icon-192.png", "sizes": "192x192", "type": "image/jpeg"}, {"src": "./assets/images/manifest-icon-512.png", "sizes": "512x512", "type": "image/jpeg"}]};
+  var base = window.location.href.replace(/\/[^/]*$/, '/');
+  var m = {"name": "Texas Dominoes", "short_name": "Texas Dominoes", "description": "Texas Dominoes - TN51 / T42 / Moon", "start_url": ".", "display": "standalone", "orientation": "portrait", "background_color": "#1a5c2a", "theme_color": "#1a5c2a", "icons": [{"src": base + "assets/images/manifest-icon-192.png", "sizes": "192x192", "type": "image/png"}, {"src": base + "assets/images/manifest-icon-512.png", "sizes": "512x512", "type": "image/png"}]};
   var blob = new Blob([JSON.stringify(m)], {type:'application/json'});
   var link = document.createElement('link');
   link.rel = 'manifest';
@@ -1978,7 +1979,7 @@
     </div>
     <div style="text-align:center;">
       <div style="font-size:24px;font-weight:800;color:#fff;margin-bottom:4px;">TN51 / TX42 Dominoes</div>
-      <div style="font-size:16px;font-weight:700;color:#60a5fa;margin-bottom:12px;" id="aboutVersion">v13.1.0</div>
+      <div style="font-size:16px;font-weight:700;color:#60a5fa;margin-bottom:12px;" id="aboutVersion">v13.1.1</div>
       <div style="font-size:12px;color:#9ca3af;line-height:1.6;">
         <div>Built: February 2026</div>
         <div>Game modes: Tennessee 51, Texas 42</div>
@@ -7334,7 +7335,7 @@ let mpMarksToWin = 7;            // Marks to win for MP game (host sets)
 let mpPreferredSeat = -1;         // Guest's preferred seat (-1 = auto)
 let mpHelloNonce = null;           // Unique nonce sent with hello, used to match seat_assign
 const MP_WS_URL = 'wss://tn51-tx42-relay.onrender.com';  // V10_122: PRODUCTION
-const MP_VERSION = 'v13.1.0';  // v13.0.0: MyClaude — fresh start, Claude Code dev build
+const MP_VERSION = 'v13.1.1';  // v13.0.0: MyClaude — fresh start, Claude Code dev build
 
 // ═══════════════════════════════════════════════════════════════
 // V10_FIX: Multiplayer Sync Fix Variables
@@ -16295,7 +16296,8 @@ function animateSprite(sprite, targetPose, duration, easing = ANIM.EASING){
 }
 
 // ============ V11.4k: Deal Mode ============
-var dealMode = 'auto'; // 'auto' (instant deal) or 'pick' (shuffle + click-to-pick)
+var dealMode = 'auto'; // 'auto' only — pick mode removed in v13.0.1
+try { localStorage.removeItem('tn51_dealMode'); } catch(e){} // Clear legacy pick mode
 
 // ============ V11.4: SHUFFLE SETTINGS ============
 var SHUFFLE_SETTINGS = {
@@ -16317,6 +16319,12 @@ var SHUFFLE_SETTINGS = {
   groupPause: 400,       // ms pause between player groups
   clickToPick: false     // allow local player to click tiles from pile
 };
+// ============ V13.1.1: Stubs for removed shuffle/deal animation ============
+// Functions removed in v13.0.1 but call sites remain throughout game logic.
+// These stubs prevent ReferenceError if dealMode somehow equals 'pick'.
+async function performShuffleAnimation() { return; }
+async function animateDealFromCenter() { return; }
+
 
 
 
