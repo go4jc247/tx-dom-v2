@@ -1,13 +1,15 @@
 // ============================================================
 // TX-Dom-Dev Service Worker
-// Version: v13.1.0 — MyClaude / Claude Code build
+// Version: v13.2.0 — MyClaude / Claude Code build
 // UPDATE CACHE_NAME every release to bust old caches
 // ============================================================
 
-const CACHE_NAME = 'tx-dom-v13.1.0';
+const CACHE_NAME = 'tx-dom-v13.2.0';
 const urlsToCache = [
   './index.html',
   './sw.js',
+  // CSS
+  './assets/css/styles.css',
   // Images
   './assets/images/icon-180.png',
   './assets/images/icon-512.png',
