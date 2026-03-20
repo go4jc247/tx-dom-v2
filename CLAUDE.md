@@ -95,3 +95,16 @@ These are not suggestions. They are hard rules for this project.
 1. `const MP_VERSION = 'vX.X.X';` — in index.html (~line 7454)
 2. `const CACHE_NAME = 'tx-dom-vX.X.X';` — in sw.js (line 8)
 3. `<div ... id="aboutVersion">vX.X.X</div>` — in index.html (~line 1981)
+
+---
+
+## MODEL PREFERENCE
+
+- **Default model: Sonnet** — use for all standard tasks
+- **Recommend switching to Opus** when the task involves:
+  - Complex multiplayer sync logic or race condition debugging
+  - Fixing or building out the Monte Carlo simulation
+  - Major architectural decisions (restructuring JS, separating files)
+  - Subtle game logic bugs that require deep reasoning
+  - Any task where Sonnet has already tried and failed
+- When recommending Opus, say clearly: **"⚠️ This task may need Opus — consider switching with /model"**
