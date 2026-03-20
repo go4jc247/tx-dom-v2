@@ -1,13 +1,37 @@
 // ============================================================
 // TX-Dom-Dev Service Worker
-// Version: v13.0.1 — MyClaude / Claude Code build
+// Version: v13.1.0 — MyClaude / Claude Code build
 // UPDATE CACHE_NAME every release to bust old caches
 // ============================================================
 
-const CACHE_NAME = 'tx-dom-v13.0.1';
-const urlsToCache = ['./index.html', './sw.js'];
+const CACHE_NAME = 'tx-dom-v13.1.0';
+const urlsToCache = [
+  './index.html',
+  './sw.js',
+  // Images
+  './assets/images/icon-180.png',
+  './assets/images/icon-512.png',
+  './assets/images/manifest-icon-192.png',
+  './assets/images/manifest-icon-512.png',
+  './assets/images/logo-tn51.png',
+  './assets/images/logo-t42.png',
+  './assets/images/logo-moon.png',
+  // SFX
+  './assets/audio/sfx-click.mp3',
+  './assets/audio/sfx-play1.mp3',
+  './assets/audio/sfx-play3.mp3',
+  './assets/audio/sfx-shuffle.mp3',
+  './assets/audio/sfx-invalid.mp3',
+  './assets/audio/sfx-collect.mp3',
+  // BGM & result songs
+  './assets/audio/bgm1.mp3',
+  './assets/audio/bgm2.mp3',
+  './assets/audio/bgm3.mp3',
+  './assets/audio/win-song.mp3',
+  './assets/audio/lose-song.mp3',
+];
 
-// Install — cache core files
+// Install — cache all files
 self.addEventListener('install', e => {
   e.waitUntil(
     caches.open(CACHE_NAME).then(c => c.addAll(urlsToCache))
@@ -27,7 +51,6 @@ self.addEventListener('activate', e => {
 });
 
 // Fetch — network first, fall back to cache
-// This ensures users always get the latest version when online
 self.addEventListener('fetch', e => {
   e.respondWith(
     fetch(e.request)
