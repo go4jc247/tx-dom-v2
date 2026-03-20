@@ -116,3 +116,13 @@ These are not suggestions. They are hard rules for this project.
 - **Bug fixes: Just do it.** Don't ask permission for fixes — fix it, commit, and report what changed. If it breaks, we roll back.
 - **Always commit before and after changes** so every version is recoverable via git history.
 - **Keep the user focused.** User has ADHD — reel them back to the current task when they drift. State clearly what the next step is.
+
+---
+
+## BACKLOG (future tasks, not urgent)
+
+### Audio Quality Upgrade
+- Current audio files in `assets/audio/` are heavily compressed (were embedded as base64)
+- User has original high-quality source files
+- When ready: replace compressed files with originals, no HTML changes needed
+- Status: **On hold**
