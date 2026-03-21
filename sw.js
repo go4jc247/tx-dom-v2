@@ -1,10 +1,10 @@
 // ============================================================
 // TX-Dom-Dev Service Worker
-// Version: v13.4.0 — MyClaude / Claude Code build
+// Version: v13.5.0 — MyClaude / Claude Code build
 // UPDATE CACHE_NAME every release to bust old caches
 // ============================================================
 
-const CACHE_NAME = 'tx-dom-v13.5.1';
+const CACHE_NAME = 'tx-dom-v13.5.0';
 const urlsToCache = [
   './index.html',
   './sw.js',
