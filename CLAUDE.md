@@ -133,3 +133,63 @@ These are not suggestions. They are hard rules for this project.
 - Requires adding import/export to all shared globals — major refactor
 - Benefits: smaller files, easier editing, significant token savings per session
 - Status: **On hold — tackle as v14.0.0 planned rewrite**
+
+---
+
+## CURRENT TASK: game.js Module Split (v13.4.0)
+
+### Audit Complete — here's what goes where:
+
+**MONTE CARLO → `assets/js/monte-carlo.js` (~740 lines)**
+- Lines 21632-22375 in game.js
+- ZERO external refs — completely self-contained IIFE
+- Triggered by #menuMonteCarlo click → mcOpenModal()
+- Status: READY TO EXTRACT
+
+**OBSERVER → `assets/js/observer.js` (~720 lines)**
+- Lines 8678-9397 in game.js
+- 4 functions called from outside: mpRequestRoomStatus(2), mpConnectAsObserver(1), mpHandleObserverMessage(1), mpShowObserverControls(1)
+- Need stub functions in game.js that lazy-load observer.js
+- Status: READY TO EXTRACT
+
+**REPLAY/SAVE-LOAD → `assets/js/replay.js` (~680 lines)**
+- Lines 19324-20005 in game.js
+- 8 functions called from outside: resumeGameFromSave(1), hasSavedGame(1), clearSavedGame(5), checkForSavedGame(1), autoSave(7), saveNotes(3), saveHandForReplay(1), replayHand(1)
+- autoSave and clearSavedGame are called frequently — need working stubs
+- Status: READY TO EXTRACT
+
+**DEV TOOLS → `assets/js/dev-tools.js` (lazy loaded on dev mode toggle)**
+- Custom hand system: lines 20005-20575 (~570 lines) — startCustomHand(1 ref outside)
+- Game logging: lines 20575-21445 (~870 lines) — logHandStart(4), logTrickStart(1), logPlay(1), logTrickEnd(1), logEvent(13!), loadGameLog(1) — need no-op stubs
+- Device presets DATA: lines 23641-24513 (~870 lines) — BUILTIN_DEVICE_PRESETS referenced 9 times but all within orientation panel
+- Status: READY TO EXTRACT (logging needs no-op stubs)
+
+**KEEP IN game.js (too intertwined):**
+- Orientation & Persistence IIFE (24513-26878) — sets essential window globals (BY2_*, FLIP_TRUMP_ENABLED)
+- Popup Config IIFE (26943-27259) — referenced from bid panel code
+- Lay Down Hand (1569-1938) — REAL GAME FEATURE not dev tool
+- Pass & Play (10124-10434, 21445-21632) — REAL GAME FEATURE
+- All core, AI, multiplayer, audio, UI code
+
+### Extraction Order:
+1. Monte Carlo (simplest, zero deps)
+2. Observer
+3. Replay
+4. Dev Tools (custom hands + logging + presets)
+
+### Lazy Load Pattern:
+```javascript
+function _lazyLoad(src, cb) {
+  if (document.querySelector('script[src="' + src + '"]')) { if(cb) cb(); return; }
+  var s = document.createElement('script');
+  s.src = src; s.onload = cb;
+  document.head.appendChild(s);
+}
+```
+Extracted files override stub functions when loaded. Auto-invoke if triggered by lazy load.
+
+### After Module Split:
+- Version bump to v13.4.0
+- Update sw.js cache list with new files
+- Update index.html if needed
+- Push to main, then gh-pages for testing
