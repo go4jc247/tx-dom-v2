@@ -86,7 +86,10 @@
         if (msg.type === 'chat') {
           const selfName = (typeof playerName !== 'undefined' && playerName) ? playerName : 'Player';
           const isSelf = msg.name && msg.name.toLowerCase() === selfName.toLowerCase();
-          claudeChatAddMessage(msg.name || 'Unknown', msg.text || '', isSelf, false);
+          // Skip own messages — already shown locally on send
+          if (!isSelf) {
+            claudeChatAddMessage(msg.name || 'Unknown', msg.text || '', false, false);
+          }
         }
       } catch (e) {
         // ignore non-JSON
@@ -145,6 +148,9 @@
       text: text,
       t: Date.now()
     }));
+
+    // Show own message locally
+    claudeChatAddMessage(name, text, true, false);
 
     input.value = '';
     input.focus();
