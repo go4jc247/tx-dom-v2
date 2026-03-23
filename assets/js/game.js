@@ -9815,6 +9815,7 @@ function showGameEndSummary(){
     + '<div style="border-top:1px solid rgba(255,255,255,0.15);padding:10px 28px;">' + _btnSection + '</div>'
     + '</div>';
   overlay.style.display = 'flex';
+  if(typeof fitOverlayContent === 'function') fitOverlayContent('gameEndOverlay');
 
   // Attach click handlers based on mode
   const newGameBtn = document.getElementById('gameEndNewGameBtn');
@@ -9919,6 +9920,7 @@ function showRoundEndSummary(){
       </div>
     </div>`;
   overlay.style.display = 'flex';
+  if(typeof fitOverlayContent === 'function') fitOverlayContent('roundEndOverlay');
   // V10_121: Only host/single-player gets the Next Round button
   const _reBtn = document.getElementById('roundEndNextBtn');
   if (_reBtn) {

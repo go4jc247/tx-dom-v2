@@ -2784,6 +2784,11 @@ function mpHandleWidowSwapConfirmed(move) {
   const swapHand = move.hand || move.newHand;
   if (swapHand && move.seat !== undefined) {
     session.game.hands[move.seat] = swapHand;
+    // Rebuild sprites for the swapped seat so tiles match the updated hand
+    if (typeof rebuildHandSprites === 'function') {
+      rebuildHandSprites(move.seat);
+      syncSpritesWithGameState();
+    }
   }
 
   session.phase = PHASE_NEED_TRUMP;

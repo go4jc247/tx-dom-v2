@@ -4,7 +4,7 @@
 // UPDATE CACHE_NAME every release to bust old caches
 // ============================================================
 
-const CACHE_NAME = 'tx-dom-v13.5.2';
+const CACHE_NAME = 'tx-dom-v13.5.3';
 const urlsToCache = [
   './index.html',
   './sw.js',
