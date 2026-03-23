@@ -4,7 +4,7 @@
 // UPDATE CACHE_NAME every release to bust old caches
 // ============================================================
 
-const CACHE_NAME = 'tx-dom-v13.5.3';
+const CACHE_NAME = 'tx-dom-v13.5.DEV';
 const urlsToCache = [
   './index.html',
   './sw.js',
@@ -18,6 +18,7 @@ const urlsToCache = [
   './assets/js/mp-social.js',
   './assets/js/orientation.js',
   './assets/js/popup-config.js',
+  './assets/js/claude-chat.js',
   // JS — lazy-loaded modules (pre-cached for offline)
   './assets/js/monte-carlo.js',
   './assets/js/observer.js',
