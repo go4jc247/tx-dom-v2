@@ -38,17 +38,17 @@
     nelloBackdrop:         { maxW:95, maxH:31, top:null, ar:140 },
     nelloDoublesBackdrop:  { maxW:72, maxH:25, top:null, ar:136 },
     dfmChoiceBackdrop:     { maxW:72, maxH:25, top:null, ar:136 },
-    gameSettingsBackdrop:  { maxW:77, maxH:90, top:null, ar:null },
+    gameSettingsBackdrop:  { maxW:77, maxH:90, top:null, ar:60 },
     notesBackdrop:         { maxW:95, maxH:39, top:null, ar:113 },
-    gameLogBackdrop:       { maxW:95, maxH:80, top:null, ar:null },
-    advLogBackdrop:        { maxW:95, maxH:85, top:null, ar:null },
-    mcBackdrop:            { maxW:95, maxH:90, top:null, ar:null },
-    tn51SettingsBackdrop:  { maxW:87, maxH:85, top:null, ar:null },
-    t42SettingsBackdrop:   { maxW:87, maxH:85, top:null, ar:null },
-    by2SettingsBackdrop:   { maxW:82, maxH:80, top:null, ar:null },
-    aboutBackdrop:         { maxW:90, maxH:25, top:null, ar:170 },
+    gameLogBackdrop:       { maxW:95, maxH:80, top:null, ar:70 },
+    advLogBackdrop:        { maxW:95, maxH:85, top:null, ar:70 },
+    mcBackdrop:            { maxW:95, maxH:90, top:null, ar:75 },
+    tn51SettingsBackdrop:  { maxW:87, maxH:85, top:null, ar:65 },
+    t42SettingsBackdrop:   { maxW:87, maxH:85, top:null, ar:65 },
+    by2SettingsBackdrop:   { maxW:82, maxH:80, top:null, ar:70 },
+    aboutBackdrop:         { maxW:90, maxH:60, top:null, ar:80 },
     ppBackdrop:            { maxW:90, maxH:42, top:null, ar:100 },
-    mpBackdrop:            { maxW:90, maxH:90, top:null, ar:null },
+    mpBackdrop:            { maxW:90, maxH:90, top:null, ar:65 },
     mpWaiting:             { maxW:100, maxH:100, top:null, ar:null },
     ppHandoff:             { maxW:100, maxH:100, top:null, ar:null }
   };
@@ -88,8 +88,8 @@
       } else {
         panel.style.aspectRatio = 'auto';
       }
-      // Ensure overflow scrolls when AR is locked
-      panel.style.overflow = 'auto';
+      // Overflow managed by fitPopupContent — default to hidden
+      panel.style.overflow = 'hidden';
     }
 
     // Top offset vs centered
@@ -108,6 +108,105 @@
         panel.style.transform = 'translate(-50%, -50%)';
       }
     }
+
+    // Auto-scale content to fit
+    fitPopupContent(popupId);
+  }
+
+  // ─── Auto-scale content to fit popup without scrolling ───
+  var MIN_SCALE = 0.6;
+
+  function fitPopupContent(popupId){
+    var backdrop = document.getElementById(popupId);
+    if(!backdrop) return;
+    var panel = backdrop.querySelector('.modalPanel') || backdrop.querySelector('.modal') || backdrop.querySelector(':scope > div');
+    if(!panel) return;
+
+    // Find the scrollable content area — first child div inside the panel
+    var content = panel.querySelector('.modalBody') || panel.children[0];
+    if(!content || content === panel) content = panel;
+
+    // Reset previous scaling to measure natural size
+    content.style.transform = '';
+    content.style.transformOrigin = '';
+    content.style.height = '';
+
+    // Double rAF to ensure layout has fully settled
+    requestAnimationFrame(function(){
+      requestAnimationFrame(function(){
+        var panelH = panel.clientHeight;
+        var naturalH = panel.scrollHeight;
+
+        if(naturalH <= panelH || panelH <= 0){
+          // Content fits — no scaling needed
+          panel.style.overflow = 'hidden';
+          return;
+        }
+
+        var scale = panelH / naturalH;
+        if(scale >= 1) return;
+
+        if(scale >= MIN_SCALE){
+          // Scale down to fit
+          content.style.transform = 'scale(' + scale.toFixed(3) + ')';
+          content.style.transformOrigin = 'top center';
+          content.style.height = (naturalH) + 'px';
+          panel.style.overflow = 'hidden';
+        } else {
+          // Below floor — don't scale, just allow scrolling at full size
+          content.style.transform = '';
+          content.style.transformOrigin = '';
+          content.style.height = '';
+          panel.style.overflow = 'auto';
+        }
+      });
+    });
+  }
+
+  // Refit all currently-visible popups (for resize/orientation)
+  function refitAllVisiblePopups(){
+    for(var id in POPUP_CONFIG){
+      var el = document.getElementById(id);
+      if(el){
+        var d = getComputedStyle(el).display;
+        if(d === 'flex' || d === 'block'){
+          fitPopupContent(id);
+        }
+      }
+    }
+  }
+
+  // Debounced resize listener
+  var _resizeTimer = null;
+  window.addEventListener('resize', function(){
+    clearTimeout(_resizeTimer);
+    _resizeTimer = setTimeout(refitAllVisiblePopups, 250);
+  });
+
+  // Scale any overlay's inner content to fit (for dynamically created overlays)
+  function fitOverlayContent(overlayId){
+    var overlay = document.getElementById(overlayId);
+    if(!overlay) return;
+    var inner = overlay.querySelector(':scope > div');
+    if(!inner) return;
+
+    // Reset previous scaling
+    inner.style.transform = '';
+    inner.style.transformOrigin = '';
+
+    requestAnimationFrame(function(){
+      requestAnimationFrame(function(){
+        var availH = overlay.clientHeight * 0.7; // account for padding-top:25%
+        var naturalH = inner.scrollHeight;
+        if(naturalH <= availH || availH <= 0) return;
+
+        var scale = availH / naturalH;
+        if(scale >= 1) return;
+        scale = Math.max(scale, MIN_SCALE);
+        inner.style.transform = 'scale(' + scale.toFixed(3) + ')';
+        inner.style.transformOrigin = 'top center';
+      });
+    });
   }
 
   // Expose globally
@@ -115,6 +214,8 @@
   window.POPUP_DEFAULTS = POPUP_DEFAULTS;
   window.POPUP_NAMES = POPUP_NAMES;
   window.applyPopupConfig = applyPopupConfig;
+  window.fitPopupContent = fitPopupContent;
+  window.fitOverlayContent = fitOverlayContent;
   window.savePopupConfig = savePopupConfig;
 
   // MutationObserver — auto-apply config when popups show
