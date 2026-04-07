@@ -1,10 +1,10 @@
 // ============================================================
 // TX-Dom-Dev Service Worker
-// Version: v13.5.0 — MyClaude / Claude Code build
+// Version: v14.0.0 — AI engine overhaul (signal tracking, lookahead, enhanced play)
 // UPDATE CACHE_NAME every release to bust old caches
 // ============================================================
 
-const CACHE_NAME = 'tx-dom-v13.5.DEV.1';
+const CACHE_NAME = 'tx-dom-v14.0.0';
 const urlsToCache = [
   './index.html',
   './sw.js',

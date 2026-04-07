@@ -7826,30 +7826,104 @@ function clearHint(){
 function processAIBid(seat) {
   const hand = session.game.hands[seat] || [];
   const evaluation = evaluateHandForBid(hand);
+  const isMoon = GAME_MODE === 'MOON';
+  const maxPip = session.game.max_pip;
+  const minBid = isMoon ? 4 : (GAME_MODE === 'T42' ? 30 : 34);
+
+  // ── POSITION-AWARE: Late position rescue bid ──
+  if (evaluation.action !== "bid" && biddingState.bidderOrder) {
+    const myIdx = biddingState.bidderOrder.indexOf(seat);
+    const totalBidders = biddingState.bidderOrder.length;
+    const passesBeforeMe = biddingState.passCount || 0;
+    const isLateBidder = myIdx >= totalBidders - 2;
+    const nobodyBidYet = !biddingState.highBid || biddingState.highBid === 0;
+
+    if (isLateBidder && nobodyBidYet && passesBeforeMe >= totalBidders - 2) {
+      const doubles = hand.filter(t => t[0] === t[1]);
+      for (let pip = maxPip; pip >= 0; pip--) {
+        const trumpTiles = hand.filter(t => t[0] === pip || t[1] === pip);
+        const hasDouble = trumpTiles.some(t => t[0] === pip && t[1] === pip);
+        const sideDoubles = doubles.filter(d => d[0] !== pip).length;
+        if ((trumpTiles.length >= 3 && hasDouble) || (trumpTiles.length >= 2 && hasDouble && sideDoubles >= 2)) {
+          const rescueEval = { action: "bid", bid: minBid, marks: 1 };
+          return processAIBidWithEval(seat, rescueEval);
+        }
+      }
+      if (doubles.length >= 3) {
+        return processAIBidWithEval(seat, { action: "bid", bid: minBid, marks: 1 });
+      }
+    }
+  }
+
+  // ── POSITION-AWARE: Early position suppression ──
+  if (evaluation.action === "bid" && biddingState.bidderOrder) {
+    const myIdx = biddingState.bidderOrder.indexOf(seat);
+    const totalBidders = biddingState.bidderOrder.length;
+    const isEarlyBidder = !isMoon && myIdx <= 1 && totalBidders >= 4;
+    if (isEarlyBidder && evaluation.bid <= minBid && (evaluation.marks || 1) === 1) {
+      biddingState.passCount++;
+      biddingState.bids.push({ seat, playerNumber: seatToPlayer(seat), bid: "pass" });
+      return { action: "pass" };
+    }
+  }
+
   if (evaluation.action !== "bid") {
     biddingState.passCount++;
     biddingState.bids.push({ seat, playerNumber: seatToPlayer(seat), bid: "pass" });
     return { action: "pass" };
   }
 
+  return processAIBidWithEval(seat, evaluation);
+}
+
+function processAIBidWithEval(seat, evaluation) {
+  const hand = session.game.hands[seat] || [];
   const evalMarks = evaluation.marks || 1;
-  const maxBid = GAME_MODE === 'MOON' ? 7 : (GAME_MODE === 'T42' ? 42 : 51);
+  const isMoon = GAME_MODE === 'MOON';
+  const maxBid = isMoon ? 7 : (GAME_MODE === 'T42' ? 42 : 51);
+  const minBid = isMoon ? 4 : (GAME_MODE === 'T42' ? 30 : 34);
   let bidMarks = evalMarks;
   let bidAmount = evaluation.bid;
 
-  // Moon: AI considers Shoot the Moon for very strong hands (bid 7 with high marks)
-  if (GAME_MODE === 'MOON' && evaluation.bid >= 7 && evalMarks >= 2) {
+  // Moon: Shoot the Moon for very strong hands
+  if (isMoon && evaluation.bid >= 7 && evalMarks >= 2) {
     biddingState.moonShoot = true;
   }
 
-  // If already in multiplier mode, AI with a strong hand should bid the next multiplier up
+  // Multiplier escalation
   if (biddingState.inMultiplierMode && evalMarks >= 2) {
-    // AI bids one level above the current highest multiplier
     bidMarks = (biddingState.highMultiplier || 1) + 1;
     bidAmount = maxBid;
   }
 
-  // Check if this bid actually outbids the current leader
+  // ── Partner check: don't outbid your own partner ──
+  if (biddingState.highBidder !== null && biddingState.highBidder !== undefined) {
+    const partnerTeam = seat % 2;
+    const highBidderTeam = biddingState.highBidder % 2;
+    if (!isMoon && partnerTeam === highBidderTeam && bidAmount <= biddingState.highBid + 2) {
+      biddingState.passCount++;
+      biddingState.bids.push({ seat, playerNumber: seatToPlayer(seat), bid: "pass" });
+      return { action: "pass" };
+    }
+  }
+
+  // ── Competitive outbid sustainability ──
+  if (biddingState.highBid > 0 && bidAmount > biddingState.highBid) {
+    const maxPip = session.game.max_pip;
+    const sustainThreshold = (GAME_MODE === 'TN51') ? 3 : 4;
+    const doubles = hand.filter(t => t[0] === t[1]);
+    let bestTrumpCount = 0;
+    for (let pip = maxPip; pip >= 0; pip--) {
+      const cnt = hand.filter(t => t[0] === pip || t[1] === pip).length;
+      const hasDbl = hand.some(t => t[0] === pip && t[1] === pip);
+      if (hasDbl && cnt > bestTrumpCount) bestTrumpCount = cnt;
+    }
+    const maxGap = (evalMarks >= 2) ? (GAME_MODE === 'TN51' ? 2 : 3) : (GAME_MODE === 'TN51' ? 1 : 2);
+    if (bestTrumpCount < sustainThreshold && bidAmount > biddingState.highBid + maxGap) {
+      bidAmount = biddingState.highBid + 1;
+    }
+  }
+
   const canOutbid = (
     bidAmount > biddingState.highBid ||
     (bidAmount === biddingState.highBid && bidMarks > (biddingState.highMarks || 1))
