@@ -3,7 +3,7 @@
 // Extracted from index.html v13.3.0
 // ============================================================
 
-const GAME_VERSION = 'v13.5.DEV.1'; // Update each release — used by splash & about screens
+const GAME_VERSION = 'v14.0.1'; // Update each release — used by splash & about screens
 
 // ============================================================
 // Lazy Load Helper — loads JS modules on demand
@@ -10682,10 +10682,6 @@ document.getElementById('menuAbout').addEventListener('click', () => {
   document.getElementById('settingsMenu').classList.remove('open');
   document.getElementById('aboutVersion').textContent = (typeof GAME_VERSION !== 'undefined') ? GAME_VERSION : (typeof MP_VERSION !== 'undefined') ? MP_VERSION : '';
   document.getElementById('aboutBackdrop').style.display = 'flex';
-});
-document.getElementById('menuClaudeChat').addEventListener('click', () => {
-  document.getElementById('settingsMenu').classList.remove('open');
-  claudeChatToggle();
 });
 document.getElementById('aboutCloseBtn').addEventListener('click', () => {
   document.getElementById('aboutBackdrop').style.display = 'none';

@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8"/>
-<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no"/>
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover"/>
 <title>Texas Dominoes</title>
 <link rel="stylesheet" href="./assets/css/styles.css">
 
@@ -257,8 +257,6 @@ if ('serviceWorker' in navigator) {
   <div class="settingsItem" id="menuChangeName">Change Name</div>
   <div class="settingsDivider"></div>
   <div class="settingsItem" id="menuAbout">About</div>
-  <div class="settingsDivider"></div>
-  <div class="settingsItem" id="menuClaudeChat" style="color:#a78bfa;">🤖 Claude Chat</div>
 </div>
 
 
@@ -271,33 +269,12 @@ if ('serviceWorker' in navigator) {
     </div>
     <div style="text-align:center;">
       <div style="font-size:24px;font-weight:800;color:#fff;margin-bottom:4px;">TN51 / TX42 Dominoes</div>
-      <div style="font-size:16px;font-weight:700;color:#60a5fa;margin-bottom:12px;" id="aboutVersion">v13.5.DEV</div>
+      <div style="font-size:16px;font-weight:700;color:#60a5fa;margin-bottom:12px;" id="aboutVersion">v14.0.1</div>
       <div style="font-size:12px;color:#9ca3af;line-height:1.6;">
         <div>Built: February 2026</div>
         <div>Game modes: Tennessee 51, Texas 42</div>
         <div>Features: AI, Pass & Play, Multiplayer</div>
       </div>
-    </div>
-  </div>
-</div>
-
-<!-- Claude Chat Overlay -->
-<div id="claudeChatBackdrop" class="claude-chat-backdrop" style="display:none;">
-  <div class="claude-chat-container">
-    <div class="claude-chat-header">
-      <div class="claude-chat-header-left">
-        <span class="claude-chat-title">🤖 Claude Chat</span>
-        <span id="claudeChatStatus" class="claude-chat-status claude-chat-status-disconnected">
-          <span class="claude-chat-status-dot"></span>
-          <span class="claude-chat-status-text">Disconnected</span>
-        </span>
-      </div>
-      <button id="claudeChatCloseBtn" class="claude-chat-close-btn">&times;</button>
-    </div>
-    <div id="claudeChatMessages" class="claude-chat-messages"></div>
-    <div class="claude-chat-input-bar">
-      <input type="text" id="claudeChatInput" class="claude-chat-input" placeholder="Type a message..." autocomplete="off" />
-      <button id="claudeChatSendBtn" class="claude-chat-send-btn">Send</button>
     </div>
   </div>
 </div>
@@ -1135,7 +1112,6 @@ if ('serviceWorker' in navigator) {
 <script src="./assets/js/multiplayer.js" defer></script>
 <script src="./assets/js/ai-engine.js" defer></script>
 <script src="./assets/js/mp-social.js" defer></script>
-<script src="./assets/js/claude-chat.js" defer></script>
 <script src="./assets/js/orientation.js" defer></script>
 <script src="./assets/js/popup-config.js" defer></script>
 

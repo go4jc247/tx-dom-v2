@@ -10,7 +10,7 @@ function mpPlayerCount(){ return GAME_MODE === 'MOON' ? 3 : (GAME_MODE === 'T42'
 function mpMaxPip(){ return GAME_MODE === 'T42' || GAME_MODE === 'MOON' ? 6 : 7; }
 function mpHandSize(){ return GAME_MODE === 'T42' || GAME_MODE === 'MOON' ? 7 : 6; }
 const MP_WS_URL = 'wss://tn51-tx42-relay.onrender.com';  // V10_122: PRODUCTION
-const MP_VERSION = 'v13.5.DEV';  // v13.5.DEV: Claude Chat feature
+const MP_VERSION = 'v14.0.1';  // v14.0.1: Stage 1 cleanup
 
 // ═══════════════════════════════════════════════════════════════
 // V10_FIX: Multiplayer Sync Fix Variables
